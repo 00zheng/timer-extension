@@ -1,0 +1,183 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Timer</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      margin: 12px;
+      width: 360px;
+    }
+    .card {
+      border: 1px solid rgba(127,127,127,.35);
+      border-radius: 14px;
+      padding: 12px;
+      box-shadow: 0 1px 10px rgba(0,0,0,.06);
+    }
+    .title {
+      font-size: 14px;
+      font-weight: 650;
+      margin: 0 0 10px;
+      opacity: .9;
+    }
+    .time {
+      font-variant-numeric: tabular-nums;
+      font-size: 38px;
+      letter-spacing: 1px;
+      text-align: center;
+      margin: 8px 0 12px;
+    }
+    .row { display: flex; gap: 8px; align-items: center; }
+    input[type="number"] {
+      width: 100%;
+      padding: 10px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(127,127,127,.35);
+      background: transparent;
+      outline: none;
+    }
+    button {
+      flex: 1;
+      padding: 10px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(127,127,127,.35);
+      background: rgba(127,127,127,.12);
+      cursor: pointer;
+      font-weight: 600;
+    }
+    button.primary {
+      background: rgba(0, 120, 255, .18);
+      border-color: rgba(0, 120, 255, .35);
+    }
+    button.danger {
+      background: rgba(255, 60, 60, .16);
+      border-color: rgba(255, 60, 60, .28);
+    }
+    .hint {
+      font-size: 12px;
+      opacity: .75;
+      margin-top: 8px;
+      text-align: center;
+    }
+    .pill {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(127,127,127,.35);
+      font-size: 12px;
+      opacity: .85;
+    }
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 320px;
+      overflow: auto;
+      padding-right: 2px;
+    }
+    .item {
+      border: 1px solid rgba(127,127,127,.2);
+      border-radius: 12px;
+      padding: 10px;
+      background: rgba(127,127,127,.05);
+    }
+    .item-title {
+      font-size: 12px;
+      font-weight: 650;
+      margin: 0 0 6px;
+      opacity: .85;
+    }
+    .small {
+      font-size: 12px;
+      opacity: .75;
+    }
+    .btn-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+    .btn-row button {
+      flex: 1 1 45%;
+    }
+    .section-title {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .4px;
+      text-transform: uppercase;
+      opacity: .7;
+      margin: 10px 0 6px;
+    }
+    .tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(127,127,127,.35);
+      background: rgba(127,127,127,.08);
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .tab-btn.active {
+      background: rgba(0, 120, 255, .18);
+      border-color: rgba(0, 120, 255, .35);
+    }
+    .hidden { display: none; }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <div class="tabs">
+      <button id="tabTimer" class="tab-btn active">Simple Timer</button>
+      <button id="tabPomodoro" class="tab-btn">Pomodoro</button>
+    </div>
+
+    <div id="timerSection">
+      <div class="row" style="justify-content: space-between;">
+        <h1 class="title">Timers</h1>
+        <button id="addTimerBtn">Add Timer</button>
+      </div>
+
+      <div id="timerList" class="list"></div>
+
+      <div class="section-title">Ringtone</div>
+      <div class="row" style="margin-top: 6px;">
+        <input id="songFile" type="file" accept="audio/*" />
+      </div>
+
+      <div class="row" style="margin-top: 8px;">
+        <button id="saveSongBtn">Save Sound</button>
+        <button id="testSongBtn">Test</button>
+        <button id="stopSongBtn">Stop Timer</button>
+      </div>
+
+      <div class="row" style="margin-top: 8px;">
+        <input id="ringtoneVolume" type="range" min="0" max="100" value="80" />
+      </div>
+      <div id="ringtoneVolumeLabel" class="hint">Volume: 80%</div>
+
+      <div id="songStatus" class="hint"></div>
+    </div>
+
+    <div id="pomodoroSection" class="hidden">
+      <div class="row" style="justify-content: space-between;">
+        <h1 class="title">Pomodoros</h1>
+        <button id="addPomodoroBtn">Add Pomodoro</button>
+      </div>
+
+      <div id="pomodoroList" class="list"></div>
+    </div>
+  </div>
+
+  <!-- Separate JS file (recommended for extensions) -->
+  <script src="popup.js"></script>
+</body>
+</html>

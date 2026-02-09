@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "TickUp",
+  "version": "1.0.0",
+  "description": "Simple stopwatch and countdown timer",
+
+  "action": {
+    "default_popup": "popup.html"
+  },
+
+  "icons": {
+    "16": "icon16.png"
+  },
+
+  "permissions": [
+    "storage",
+    "alarms",
+    "offscreen",
+    "notifications"
+  ],
+
+  "background": {
+    "service_worker": "background.js"
+  }
+}
