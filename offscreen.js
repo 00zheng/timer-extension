@@ -70,7 +70,7 @@ async function playBlob(blob) {
 }
 
 async function playDefault() {
-  const url = chrome.runtime.getURL("sounds/ding.mp3");
+  const url = chrome.runtime.getURL("ding.mp3");
   await setSourceAndPlay(url, { revokeObjectUrl: true });
 }
 
@@ -87,6 +87,7 @@ async function playSavedSound() {
     console.warn("Audio play blocked or failed:", e);
   }
 }
+
 
 chrome.runtime.onMessage.addListener((msg) => {
   if (msg?.type === "PLAY_SOUND") {
