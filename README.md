@@ -1,2 +1,6 @@
-# timer-extension
-Privacy policy for Timer Chrome extension
+# TickUp
+Innovative timer for productivity
+- multiple timers
+- pomodoro timers
+- custom ringtones
+
