@@ -19,6 +19,9 @@ const ringtoneVolumeEl = document.getElementById("ringtoneVolume");
 const ringtoneVolumeLabel = document.getElementById("ringtoneVolumeLabel");
 
 let uiInterval = null;
+const UI_TICK_MS = 50;
+const POINTER_ACTION_WINDOW_MS = 400;
+let lastPointerAction = { id: null, action: null, at: 0 };
 
 const DB_NAME = "timerDB";
 const DB_STORE = "audio";
@@ -265,7 +268,7 @@ async function migrateIfNeeded() {
 
 function startUiTick() {
   if (uiInterval) return;
-  uiInterval = setInterval(render, 200);
+  uiInterval = setInterval(render, UI_TICK_MS);
 }
 
 function stopUiTick() {
@@ -370,6 +373,18 @@ function renderPomodoroItem(pomo) {
   `;
 
   return wrapper;
+}
+
+function markPointerAction(id, action) {
+  lastPointerAction = { id, action, at: now() };
+}
+
+function wasRecentPointerAction(id, action) {
+  return (
+    lastPointerAction.id === id &&
+    lastPointerAction.action === action &&
+    now() - lastPointerAction.at < POINTER_ACTION_WINDOW_MS
+  );
 }
 
 async function render() {
@@ -596,16 +611,40 @@ async function deletePomodoro(id) {
   await render();
 }
 
+async function handleTimerAction(action, id) {
+  if (action === "start") await startTimer(id);
+  if (action === "pause") await pauseTimer(id);
+  if (action === "reset") await resetTimer(id);
+  if (action === "delete") await deleteTimer(id);
+}
+
+async function handlePomodoroAction(action, id) {
+  if (action === "start") await startPomodoro(id);
+  if (action === "pause") await pausePomodoro(id);
+  if (action === "reset") await resetPomodoro(id);
+  if (action === "delete") await deletePomodoro(id);
+}
+
+timerListEl.addEventListener("pointerdown", async (e) => {
+  const btn = e.target.closest("button[data-action]");
+  if (!btn) return;
+  const item = btn.closest(".timer-item");
+  if (!item) return;
+  const id = item.dataset.id;
+  const action = btn.dataset.action;
+  markPointerAction(id, action);
+  await handleTimerAction(action, id);
+});
+
 timerListEl.addEventListener("click", async (e) => {
   const btn = e.target.closest("button[data-action]");
   if (!btn) return;
   const item = btn.closest(".timer-item");
   if (!item) return;
   const id = item.dataset.id;
-  if (btn.dataset.action === "start") await startTimer(id);
-  if (btn.dataset.action === "pause") await pauseTimer(id);
-  if (btn.dataset.action === "reset") await resetTimer(id);
-  if (btn.dataset.action === "delete") await deleteTimer(id);
+  const action = btn.dataset.action;
+  if (wasRecentPointerAction(id, action)) return;
+  await handleTimerAction(action, id);
 });
 
 timerListEl.addEventListener("change", async (e) => {
@@ -641,16 +680,26 @@ timerListEl.addEventListener("change", async (e) => {
   await render();
 });
 
+pomodoroListEl.addEventListener("pointerdown", async (e) => {
+  const btn = e.target.closest("button[data-action]");
+  if (!btn) return;
+  const item = btn.closest(".pomodoro-item");
+  if (!item) return;
+  const id = item.dataset.id;
+  const action = btn.dataset.action;
+  markPointerAction(id, action);
+  await handlePomodoroAction(action, id);
+});
+
 pomodoroListEl.addEventListener("click", async (e) => {
   const btn = e.target.closest("button[data-action]");
   if (!btn) return;
   const item = btn.closest(".pomodoro-item");
   if (!item) return;
   const id = item.dataset.id;
-  if (btn.dataset.action === "start") await startPomodoro(id);
-  if (btn.dataset.action === "pause") await pausePomodoro(id);
-  if (btn.dataset.action === "reset") await resetPomodoro(id);
-  if (btn.dataset.action === "delete") await deletePomodoro(id);
+  const action = btn.dataset.action;
+  if (wasRecentPointerAction(id, action)) return;
+  await handlePomodoroAction(action, id);
 });
 
 pomodoroListEl.addEventListener("change", async (e) => {
