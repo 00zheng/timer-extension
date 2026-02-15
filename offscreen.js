@@ -26,6 +26,11 @@ async function idbGet(key) {
 
 let currentObjectUrl = null;
 
+function clampVolume(value) {
+  if (!Number.isFinite(value)) return 0.8;
+  return Math.min(1, Math.max(0, value));
+}
+
 function getAudio() {
   const audio = document.getElementById("player");
   if (!audio) {
@@ -35,7 +40,13 @@ function getAudio() {
   return audio;
 }
 
-async function setSourceAndPlay(src, { revokeObjectUrl = false } = {}) {
+function applyVolume(volume) {
+  const audio = getAudio();
+  if (!audio) return;
+  audio.volume = clampVolume(volume);
+}
+
+async function setSourceAndPlay(src, { revokeObjectUrl = false, volume = null } = {}) {
   const audio = getAudio();
   if (!audio) return;
 
@@ -50,21 +61,18 @@ async function setSourceAndPlay(src, { revokeObjectUrl = false } = {}) {
     // ignore
   }
 
-  let alarmVolume = null;
-  try {
-    if (globalThis.chrome?.storage?.local?.get) {
-      const stored = await chrome.storage.local.get(["alarmVolume"]);
-      if (Number.isFinite(stored.alarmVolume)) alarmVolume = stored.alarmVolume;
+  let alarmVolume = Number.isFinite(volume) ? volume : null;
+  if (!Number.isFinite(alarmVolume)) {
+    try {
+      if (globalThis.chrome?.storage?.local?.get) {
+        const stored = await chrome.storage.local.get(["alarmVolume"]);
+        if (Number.isFinite(stored.alarmVolume)) alarmVolume = stored.alarmVolume;
+      }
+    } catch {
+      // If storage is unavailable in this context, fall back to default volume.
     }
-  } catch {
-    // If storage is unavailable in this context, fall back to default volume.
   }
-
-  if (Number.isFinite(alarmVolume)) {
-    audio.volume = Math.min(1, Math.max(0, alarmVolume));
-  } else {
-    audio.volume = 0.8;
-  }
+  audio.volume = clampVolume(alarmVolume);
 
   audio.src = src;
   audio.currentTime = 0;
@@ -72,25 +80,25 @@ async function setSourceAndPlay(src, { revokeObjectUrl = false } = {}) {
   await audio.play();
 }
 
-async function playBlob(blob) {
+async function playBlob(blob, preferredVolume = null) {
   if (currentObjectUrl) URL.revokeObjectURL(currentObjectUrl);
   currentObjectUrl = URL.createObjectURL(blob);
-  await setSourceAndPlay(currentObjectUrl);
+  await setSourceAndPlay(currentObjectUrl, { volume: preferredVolume });
 }
 
-async function playDefault() {
+async function playDefault(preferredVolume = null) {
   const url = chrome.runtime.getURL("ding.mp3");
-  await setSourceAndPlay(url, { revokeObjectUrl: true });
+  await setSourceAndPlay(url, { revokeObjectUrl: true, volume: preferredVolume });
 }
 
-async function playSavedSound() {
+async function playSavedSound(preferredVolume = null) {
   try {
     const record = await idbGet(DB_KEY);
     if (record?.blob) {
-      await playBlob(record.blob);
+      await playBlob(record.blob, preferredVolume);
     } else {
       console.warn("No saved sound found. Playing default ding.");
-      await playDefault();
+      await playDefault(preferredVolume);
     }
   } catch (e) {
     console.warn("Audio play blocked or failed:", e);
@@ -101,7 +109,11 @@ async function playSavedSound() {
 chrome.runtime.onMessage.addListener((msg) => {
   if (msg?.type === "PLAY_SOUND") {
     console.log("Offscreen received PLAY_SOUND");
-    playSavedSound();
+    playSavedSound(msg?.volume);
+    return;
+  }
+  if (msg?.type === "SET_VOLUME") {
+    applyVolume(msg?.volume);
     return;
   }
   if (msg?.type === "STOP_SOUND") {

@@ -6,15 +6,16 @@
   <title>Timer</title>
   <style>
     :root { color-scheme: light dark; }
+    html, body { overflow: hidden; }
     body {
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      margin: 12px;
-      width: 360px;
+      margin: 8px;
+      width: 340px;
     }
     .card {
       border: 1px solid rgba(127,127,127,.35);
       border-radius: 14px;
-      padding: 12px;
+      padding: 10px;
       box-shadow: 0 1px 10px rgba(0,0,0,.06);
     }
     .title {
@@ -30,23 +31,58 @@
       text-align: center;
       margin: 8px 0 12px;
     }
-    .row { display: flex; gap: 8px; align-items: center; }
+    .row { display: flex; gap: 6px; align-items: center; }
+    .file-row input[type="file"] {
+      flex: 1;
+      min-width: 0;
+    }
+    .file-row #testSongBtn {
+      flex: 0 0 auto;
+      min-width: 72px;
+    }
+    .sound-actions #saveSongBtn {
+      flex: 1;
+    }
+    .sound-actions #stopSongBtn {
+      flex: 2;
+    }
+    .volume-row input[type="range"] {
+      flex: 1;
+      width: 100%;
+    }
+    .volume-number-wrap {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      min-width: 72px;
+    }
+    .volume-number-wrap input[type="number"] {
+      width: 50px;
+      text-align: right;
+      padding: 6px 6px;
+      border-radius: 10px;
+    }
+    .volume-number-wrap span {
+      font-size: 12px;
+      opacity: .8;
+    }
     input[type="number"] {
       width: 100%;
-      padding: 10px 10px;
-      border-radius: 12px;
+      padding: 8px 8px;
+      border-radius: 10px;
       border: 1px solid rgba(127,127,127,.35);
       background: transparent;
       outline: none;
     }
     button {
       flex: 1;
-      padding: 10px 10px;
-      border-radius: 12px;
+      padding: 8px 8px;
+      border-radius: 10px;
       border: 1px solid rgba(127,127,127,.35);
       background: rgba(127,127,127,.12);
       cursor: pointer;
       font-weight: 600;
+      font-size: 12px;
     }
     button.primary {
       background: rgba(0, 120, 255, .18);
@@ -57,9 +93,9 @@
       border-color: rgba(255, 60, 60, .28);
     }
     .hint {
-      font-size: 12px;
+      font-size: 10px;
       opacity: .75;
-      margin-top: 8px;
+      margin-top: 4px;
       text-align: center;
     }
     .pill {
@@ -73,15 +109,15 @@
     .list {
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      max-height: 320px;
+      gap: 6px;
+      max-height: 120px;
       overflow: auto;
       padding-right: 2px;
     }
     .item {
       border: 1px solid rgba(127,127,127,.2);
       border-radius: 12px;
-      padding: 10px;
+      padding: 7px;
       background: rgba(127,127,127,.05);
     }
     .item-title {
@@ -90,6 +126,32 @@
       margin: 0 0 6px;
       opacity: .85;
     }
+    .timer-name-input {
+      flex: 1;
+      min-width: 0;
+      padding: 4px 6px;
+      border-radius: 8px;
+      border: 1px solid rgba(127,127,127,.28);
+      background: transparent;
+      font-size: 12px;
+      font-weight: 650;
+      opacity: .9;
+      outline: none;
+    }
+    .move-btn {
+      flex: 0 0 auto;
+      min-width: 34px;
+      padding: 6px 0;
+      line-height: 1;
+    }
+    .pomodoro-recurring {
+      margin-top: 2px;
+      gap: 4px;
+      align-items: center;
+    }
+    .pomodoro-recurring .small {
+      font-size: 11px;
+    }
     .small {
       font-size: 12px;
       opacity: .75;
@@ -97,37 +159,174 @@
     .btn-row {
       display: flex;
       gap: 6px;
-      margin-top: 8px;
+      margin-top: 4px;
       flex-wrap: wrap;
     }
     .btn-row button {
       flex: 1 1 45%;
     }
     .section-title {
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
       letter-spacing: .4px;
       text-transform: uppercase;
       opacity: .7;
-      margin: 10px 0 6px;
+      margin: 8px 0 4px;
+    }
+    .ringtone-panel {
+      margin-top: 6px;
+      border: 1px solid rgba(127,127,127,.2);
+      border-radius: 12px;
+      padding: 6px;
+      background: rgba(127,127,127,.05);
+    }
+    .ringtone-head {
+      display: flex;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    .ringtone-title {
+      margin: 0;
+      font-size: 12px;
+      font-weight: 650;
+      opacity: .9;
+    }
+    .field-label {
+      font-size: 11px;
+      font-weight: 700;
+      opacity: .85;
+      letter-spacing: .2px;
+      margin-top: 4px;
+      margin-bottom: 1px;
+      text-transform: uppercase;
+    }
+    .sound-actions button {
+      font-size: 12px;
+    }
+    #songStatus {
+      background: rgba(127,127,127,.12);
+      border: 1px solid rgba(127,127,127,.28);
+      border-radius: 10px;
+      padding: 3px 8px;
+      text-align: left;
+      margin-top: 4px;
     }
     .tabs {
       display: flex;
       gap: 6px;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
+      flex: 1;
+    }
+    .tabs-wrap {
+      display: flex;
+      gap: 6px;
+      align-items: center;
     }
     .tab-btn {
       flex: 1;
-      padding: 6px 10px;
+      padding: 5px 8px;
       border-radius: 999px;
       border: 1px solid rgba(127,127,127,.35);
       background: rgba(127,127,127,.08);
       cursor: pointer;
       font-weight: 600;
+      font-size: 12px;
     }
     .tab-btn.active {
       background: rgba(0, 120, 255, .18);
       border-color: rgba(0, 120, 255, .35);
+    }
+    .help-btn {
+      flex: 0 0 auto;
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      padding: 0;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .stopwatch-panel {
+      border: 1px solid rgba(127,127,127,.2);
+      border-radius: 12px;
+      padding: 8px;
+      background: rgba(127,127,127,.05);
+    }
+    .stopwatch-time {
+      font-variant-numeric: tabular-nums;
+      font-size: 30px;
+      letter-spacing: .8px;
+      text-align: center;
+      margin: 2px 0 8px;
+    }
+    .lap-list {
+      margin-top: 8px;
+      max-height: 120px;
+      overflow: auto;
+      border: 1px solid rgba(127,127,127,.2);
+      border-radius: 10px;
+      background: rgba(127,127,127,.04);
+      padding: 4px;
+    }
+    .lap-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 12px;
+      padding: 4px 6px;
+      border-radius: 8px;
+    }
+    .lap-row:nth-child(odd) {
+      background: rgba(127,127,127,.08);
+    }
+    .lap-empty {
+      font-size: 11px;
+      opacity: .7;
+      text-align: center;
+      padding: 8px 4px;
+    }
+    .stopwatch-name-input {
+      flex: 1;
+      min-width: 0;
+      padding: 4px 6px;
+      border-radius: 8px;
+      border: 1px solid rgba(127,127,127,.28);
+      background: transparent;
+      font-size: 12px;
+      font-weight: 650;
+      opacity: .9;
+      outline: none;
+    }
+    .lap-list-item {
+      margin-top: 6px;
+      max-height: 90px;
+      overflow: auto;
+      border: 1px solid rgba(127,127,127,.2);
+      border-radius: 10px;
+      background: rgba(127,127,127,.04);
+      padding: 4px;
+    }
+    .split-head {
+      justify-content: space-between;
+      margin-top: 8px;
+    }
+    .header-actions {
+      display: flex;
+      gap: 6px;
+    }
+    #timerSection,
+    #stopwatchSection {
+      max-height: none;
+      overflow: visible;
+      padding-right: 0;
+    }
+    #timerList {
+      max-height: 200px;
+    }
+    #stopwatchList {
+      max-height: none;
+      overflow: visible;
+      padding-right: 0;
     }
     .hidden { display: none; }
   </style>
@@ -135,45 +334,62 @@
 
 <body>
   <div class="card">
-    <div class="tabs">
-      <button id="tabTimer" class="tab-btn active">Simple Timer</button>
-      <button id="tabPomodoro" class="tab-btn">Pomodoro</button>
+    <div class="tabs-wrap">
+      <div class="tabs">
+        <button id="tabTimer" class="tab-btn active">Timer</button>
+        <button id="tabStopwatch" class="tab-btn">Stopwatch</button>
+      </div>
+      <button id="openInstructionsBtn" class="help-btn" title="Open GitHub instructions">i</button>
     </div>
 
     <div id="timerSection">
       <div class="row" style="justify-content: space-between;">
         <h1 class="title">Timers</h1>
-        <button id="addTimerBtn">Add Timer</button>
+        <div class="header-actions">
+          <button id="addTimerBtn">Add Timer</button>
+          <button id="addPomodoroBtn">Add Pomodoro</button>
+        </div>
       </div>
 
       <div id="timerList" class="list"></div>
 
-      <div class="section-title">Ringtone</div>
-      <div class="row" style="margin-top: 6px;">
-        <input id="songFile" type="file" accept="audio/*" />
-      </div>
+      <div class="ringtone-panel">
+        <div class="ringtone-head">
+          <p class="ringtone-title">Ringtone</p>
+        </div>
 
-      <div class="row" style="margin-top: 8px;">
-        <button id="saveSongBtn">Save Sound</button>
-        <button id="testSongBtn">Test</button>
-        <button id="stopSongBtn">Stop Timer</button>
-      </div>
+        <div class="field-label">Sound</div>
+        <div class="row file-row">
+          <input id="songFile" type="file" accept="audio/*" title="Choose a custom alarm sound file" />
+          <button id="testSongBtn" title="Preview the selected or saved sound">Preview</button>
+        </div>
 
-      <div class="row" style="margin-top: 8px;">
-        <input id="ringtoneVolume" type="range" min="0" max="100" value="80" />
-      </div>
-      <div id="ringtoneVolumeLabel" class="hint">Volume: 80%</div>
+        <div class="field-label">Actions</div>
+        <div class="row sound-actions" style="margin-top: 6px;">
+          <button id="saveSongBtn" title="Save selected sound and volume">Save Sound</button>
+          <button id="stopSongBtn" title="Stop any sound that is currently playing">Stop Sound</button>
+        </div>
 
-      <div id="songStatus" class="hint"></div>
+        <div class="field-label">Volume</div>
+        <div class="row volume-row" style="margin-top: 6px;">
+          <input id="ringtoneVolume" type="range" min="0" max="100" value="80" title="Adjust alarm volume" />
+          <div class="volume-number-wrap">
+            <input id="ringtoneVolumeNumber" type="number" min="0" max="100" step="1" value="80" title="Type an exact volume percentage" />
+            <span>%</span>
+          </div>
+        </div>
+        <div id="ringtoneVolumeLabel" class="hint">Volume: 80%</div>
+
+        <div id="songStatus" class="hint">No custom sound saved yet.</div>
+      </div>
     </div>
 
-    <div id="pomodoroSection" class="hidden">
+    <div id="stopwatchSection" class="hidden">
       <div class="row" style="justify-content: space-between;">
-        <h1 class="title">Pomodoros</h1>
-        <button id="addPomodoroBtn">Add Pomodoro</button>
+        <h1 class="title">Stopwatches</h1>
+        <button id="addStopwatchBtn">Add Stopwatch</button>
       </div>
-
-      <div id="pomodoroList" class="list"></div>
+      <div id="stopwatchList" class="list"></div>
     </div>
   </div>
 
