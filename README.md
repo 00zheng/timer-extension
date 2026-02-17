@@ -3,6 +3,7 @@ Innovative timer for productivity
 - multiple timers
 - pomodoro timers
 - custom ringtones
+- stopwatch
 
 HOW TO DOWNLOAD A CHROME EXTENSION
 1) Download the extension from GitHub
